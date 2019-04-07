@@ -55,6 +55,15 @@ const App = (props) => {
         const name = persons.find(person => person.name === nameObject.name)
         const changedContact = {...name, number: nameObject.number}
 
+        if (!changedContact.number) {
+          setMessage('Phonenumber missing! Try again', 'error')
+          setTimeout(() => {
+            setMessage(null, null)
+          }, 5000)
+          setNewName({...newName, name: '', number: ''})
+          return
+        }
+
         contactService
           .update(name.id, changedContact)
           .then(returnedContact => {
