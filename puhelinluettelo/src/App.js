@@ -55,15 +55,6 @@ const App = (props) => {
         const name = persons.find(person => person.name === nameObject.name)
         const changedContact = {...name, number: nameObject.number}
 
-        if (!changedContact.number) {
-          setMessage('Phonenumber missing! Try again', 'error')
-          setTimeout(() => {
-            setMessage(null, null)
-          }, 5000)
-          setNewName({...newName, name: '', number: ''})
-          return
-        }
-
         contactService
           .update(name.id, changedContact)
           .then(returnedContact => {
@@ -76,8 +67,10 @@ const App = (props) => {
             }, 5000)
           })
           .catch(err => {
-            setMessage(errorMessage.message, errorMessage.status)
-            setPersons(persons.filter(person => person.id !== changedContact.id))
+            setMessage(err.response.data.error, 'error')
+            if (err.response.status === 500) {
+              setPersons(persons.filter(person => person.id !== name.id))
+            }
             setTimeout(() => {
               setMessage(null, null)
             }, 5000)
@@ -91,6 +84,13 @@ const App = (props) => {
         })
         .then(() => {
           setMessage(`${nameObject.name} added`, 'success')
+          setTimeout(() => {
+            setMessage(null, null)
+          }, 5000)
+        })
+        .catch(err => {
+          console.log(err.response.data.error)
+          setMessage(err.response.data.error, 'error')
           setTimeout(() => {
             setMessage(null, null)
           }, 5000)
